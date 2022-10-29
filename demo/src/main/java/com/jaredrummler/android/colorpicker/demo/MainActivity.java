@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
   @Override public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menu_color_picker_dialog:
-        ColorPickerDialog.newBuilder()
+        ColorPickerDialog.newBuilder(DIALOG_ID)
             .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
             .setAllowPresets(false)
-            .setDialogId(DIALOG_ID)
+//            .setDialogId(DIALOG_ID)
             .setColor(Color.BLACK)
             .setShowAlphaSlider(true)
             .show(this);

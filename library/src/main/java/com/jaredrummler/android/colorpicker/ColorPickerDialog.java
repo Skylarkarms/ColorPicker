@@ -50,6 +50,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import java.util.Arrays;
 import java.util.Locale;
@@ -153,10 +154,11 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
   /**
    * Create a new Builder for creating a {@link ColorPickerDialog} instance
    *
+   * @param dialogId The id that is sent back to the {@link ColorPickerDialogListener}.
    * @return The {@link Builder builder} to create the {@link ColorPickerDialog}.
    */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static Builder newBuilder(int dialogId) {
+    return new Builder(dialogId);
   }
 
   @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -261,13 +263,21 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
   /**
    * Set the callback.
    * <p/>
-   * Note: The preferred way to handle the callback is to have the calling Activity implement
-   * {@link ColorPickerDialogListener} as this will not survive an orientation change.
-   *
-   * @param colorPickerDialogListener The callback invoked when a color is selected or the dialog is dismissed.
-   */
-  public void setColorPickerDialogListener(ColorPickerDialogListener colorPickerDialogListener) {
-    this.colorPickerDialogListener = colorPickerDialogListener;
+   **/
+  private void setColorPickerDialogListener() {
+    setColorPickerDialogListener((ColorPickerDialogListener) getTargetFragment());
+//    this.colorPickerDialogListener = colorPickerDialogListener;
+  }
+
+  /*private */void setColorPickerDialogListener(ColorPickerDialogListener listener) {
+    this.colorPickerDialogListener = listener;
+//    this.colorPickerDialogListener = colorPickerDialogListener;
+  }
+
+  @Override
+  public void onAttach(@NonNull Context context) {
+    super.onAttach(context);
+    setColorPickerDialogListener();
   }
 
   // region Custom Picker
@@ -747,15 +757,15 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
     @DialogType int dialogType = TYPE_PRESETS;
     int[] presets = MATERIAL_COLORS;
     @ColorInt int color = Color.BLACK;
-    int dialogId = 0;
+    final int dialogId;
     boolean showAlphaSlider = false;
     boolean allowPresets = true;
     boolean allowCustom = true;
     boolean showColorShades = true;
     @ColorShape int colorShape = ColorShape.CIRCLE;
 
-    /*package*/ Builder() {
-
+    /*package*/ Builder(int dialogId) {
+      this.dialogId = dialogId;
     }
 
     /**
@@ -835,16 +845,16 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
       return this;
     }
 
-    /**
-     * Set the dialog id used for callbacks
-     *
-     * @param dialogId The id that is sent back to the {@link ColorPickerDialogListener}.
-     * @return This builder object for chaining method calls
-     */
-    public Builder setDialogId(int dialogId) {
-      this.dialogId = dialogId;
-      return this;
-    }
+//    /**
+//     * Set the dialog id used for callbacks
+//     *
+//     * @param dialogId The id that is sent back to the {@link ColorPickerDialogListener}.
+//     * @return This builder object for chaining method calls
+//     */
+//    public Builder setDialogId(int dialogId) {
+//      this.dialogId = dialogId;
+//      return this;
+//    }
 
     /**
      * Show the alpha slider
@@ -908,7 +918,7 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
      * @return A new {@link ColorPickerDialog}.
      * @see #show(FragmentActivity)
      */
-    public ColorPickerDialog create() {
+    /*private*/ ColorPickerDialog create() {
       ColorPickerDialog dialog = new ColorPickerDialog();
       Bundle args = new Bundle();
       args.putInt(ARG_ID, dialogId);
@@ -933,9 +943,29 @@ public class ColorPickerDialog extends DialogFragment implements ColorPickerView
      *
      * @param activity The current activity.
      */
-    public void show(FragmentActivity activity) {
-      create().show(activity.getSupportFragmentManager(), "color-picker-dialog");
+//    public void show(FragmentActivity activity) {
+//      create().show(activity.getSupportFragmentManager(), "color-picker-dialog");
+//    }
+
+    public void show(Fragment here) {
+      if (!(here instanceof ColorPickerDialogListener)) throw new IllegalStateException("Fragment not instance of ColorPickerDialogListener!!");
+      ColorPickerDialog dialogFragCompat = create();
+      dialogFragCompat.setTargetFragment(here, dialogId);
+      dialogFragCompat.show(here.getParentFragmentManager(), "create new " + dialogFragCompat.getTag() + " dialog");
     }
+
+    public void show(FragmentActivity activity) {
+      if (!(activity instanceof ColorPickerDialogListener)) throw new IllegalStateException("Fragment not instance of ColorPickerDialogListener!!");
+      ColorPickerDialog dialog = create();
+//      FragmentActivity activity = (FragmentActivity) context;
+//      activity.getSupportFragmentManager()
+//          .beginTransaction()
+//          .add(dialog, "create new " + dialog.getTag() + " dialog")
+//          .commitAllowingStateLoss();
+//
+      dialog.show(activity.getSupportFragmentManager(), "create new " + dialog.getTag() + " dialog");
+    }
+
   }
 
   // endregion

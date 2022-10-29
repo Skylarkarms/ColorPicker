@@ -91,7 +91,8 @@ public class ColorPreference extends Preference implements ColorPickerDialogList
     if (onShowDialogListener != null) {
       onShowDialogListener.onShowColorPickerDialog((String) getTitle(), color);
     } else if (showDialog) {
-      ColorPickerDialog dialog = ColorPickerDialog.newBuilder()
+      ColorPickerDialog.Builder builder = ColorPickerDialog.newBuilder(1)
+//      ColorPickerDialog dialog = ColorPickerDialog.newBuilder(1)
           .setDialogType(dialogType)
           .setDialogTitle(dialogTitle)
           .setColorShape(colorShape)
@@ -100,29 +101,30 @@ public class ColorPreference extends Preference implements ColorPickerDialogList
           .setAllowCustom(allowCustom)
           .setShowAlphaSlider(showAlphaSlider)
           .setShowColorShades(showColorShades)
-          .setColor(color)
-          .create();
-      dialog.setColorPickerDialogListener(this);
-      FragmentActivity activity = (FragmentActivity) getContext();
-      activity.getSupportFragmentManager()
-          .beginTransaction()
-          .add(dialog, getFragmentTag())
-          .commitAllowingStateLoss();
+          .setColor(color);
+//          .create();
+//      dialog.setColorPickerDialogListener(this);
+//      FragmentActivity activity = (FragmentActivity) getContext();
+//      activity.getSupportFragmentManager()
+//          .beginTransaction()
+//          .add(dialog, getFragmentTag())
+//          .commitAllowingStateLoss();
+      builder.show((FragmentActivity) getContext());
     }
   }
 
   @Override protected void onAttachedToActivity() {
     super.onAttachedToActivity();
 
-    if (showDialog) {
-      FragmentActivity activity = (FragmentActivity) getContext();
-      ColorPickerDialog fragment =
-          (ColorPickerDialog) activity.getSupportFragmentManager().findFragmentByTag(getFragmentTag());
-      if (fragment != null) {
-        // re-bind preference to fragment
-        fragment.setColorPickerDialogListener(this);
-      }
-    }
+//    if (showDialog) {
+//      FragmentActivity activity = (FragmentActivity) getContext();
+//      ColorPickerDialog fragment =
+//          (ColorPickerDialog) activity.getSupportFragmentManager().findFragmentByTag(getFragmentTag());
+//      if (fragment != null) {
+//        // re-bind preference to fragment
+//        fragment.setColorPickerDialogListener(this);
+//      }
+//    }
   }
 
   @Override protected void onBindView(View view) {
